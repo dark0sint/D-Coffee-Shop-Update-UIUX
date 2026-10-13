@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ff5a36"><title>D Coffee - Kasir</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1f2430;--mu:#7b8294;--ac:#ff5a36;--ac2:#fff0ea;--bd:#eceef4;--g1:#ff8a3d;--g2:#ff3d68;--sh:0 6px 20px #1f24301a}@media(prefers-color-scheme:dark){:root{--bg:#12141a;--card:#1c1f28;--tx:#f1f3f8;--mu:#9aa1b2;--ac:#ff7a55;--ac2:#2d2220;--bd:#2a2e3a;--sh:0 6px 20px #0006}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:14px}
+h1{font-size:21px;margin:0}h2{font-size:17px;margin:22px 0 10px}
+.top{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,var(--g1),var(--g2) 70%,#a855f7);color:#fff;border-radius:22px;padding:16px 20px;margin-bottom:16px;box-shadow:var(--sh)}
+.top button.s{background:#fff3;color:#fff;width:auto;margin:0;padding:9px 16px}
+.card{background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:var(--sh)}
+button{font:inherit;border:0;border-radius:14px;padding:11px 16px;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;font-weight:700;cursor:pointer;transition:transform .12s}button:active{transform:scale(.97)}
+button.s{background:var(--ac2);color:var(--ac)}
+input,select{font:inherit;padding:11px 12px;border-radius:14px;border:1.5px solid var(--bd);background:var(--card);color:var(--tx);width:100%}
+.mu{color:var(--mu);font-size:13px}.box{max-width:360px;margin:12vh auto;padding:22px;border-radius:24px}.box input{margin-bottom:10px}
+
+.wrap{max-width:1200px;margin:auto}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.col>h2{margin:0 0 10px;display:inline-block;padding:6px 14px;border-radius:999px;color:#fff;font-size:15px}
+.c-baru>h2{background:#ff5a36}.c-dibuat>h2{background:#3b82f6}.c-siap>h2{background:#00b14f}
+.c-baru .card{border-left:7px solid #ff5a36}.c-dibuat .card{border-left:7px solid #3b82f6}.c-siap .card{border-left:7px solid #00b14f}
+.c-dibuat button{background:linear-gradient(135deg,#60a5fa,#3b82f6)}.c-siap button{background:linear-gradient(135deg,#19c37d,#00b14f)}
+.card>button{width:100%;margin-top:10px;padding:14px;font-size:16px}.card b{font-size:16px}
+</style></head><body><div id="app"></div>
+<script>
+let TK=localStorage.getItem('stk')||'',known=new Set(),first=true,timer;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(p,m,b){const r=await fetch(p,{method:m||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TK},body:b?JSON.stringify(b):undefined});
+ const j=await r.json().catch(()=>({}));if(r.status==401||r.status==403){logout();throw new Error(j.error)}if(!r.ok)throw new Error(j.error||'Gagal');return j}
+function loginUI(e){clearInterval(timer);document.getElementById('app').innerHTML=`<div class="box card"><h1>☕ Panel Kasir</h1><p class="mu">Masuk dengan akun staf</p>
+ <input id="p" placeholder="No. HP staf" inputmode="numeric"><input id="w" type="password" placeholder="Password">${e?`<p style="color:#c0392b">${esc(e)}</p>`:''}<button onclick="login()">Masuk</button></div>`}
+async function login(){try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:p.value,password:w.value})});
+ const j=await r.json();if(!r.ok)throw new Error(j.error);if(j.role=='customer')throw new Error('Bukan akun staf');TK=j.token;localStorage.setItem('stk',TK);start()}catch(e){loginUI(e.message)}}
+function logout(){TK='';localStorage.removeItem('stk');loginUI()}
+function beep(){try{const a=new AudioContext(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=880;o.start();setTimeout(()=>{o.stop();a.close()},350)}catch(e){}}
+const NEXT={baru:['dibuat','Mulai Buat'],dibuat:['siap','Tandai Siap'],siap:['selesai','Selesai / Diambil']};
+async function set(id,s){try{await api('/api/staff/orders/'+id,'PATCH',{status:s});load()}catch(e){alert(e.message)}}
+function card(o){const t=new Date(o.created_at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+ return `<div class="card"><b>#${esc(o.code)}</b> · ${esc(o.name)}<div class="mu">${t} · ambil: ${esc(o.slot)} · ${esc(o.pay)}</div>
+ <div style="margin-top:6px">${o.items.map(i=>`<div><b>${i.q}×</b> ${esc(i.n)}<div class="mu">${esc(i.d||'')}</div></div>`).join('')}</div>
+ <button onclick="set(${o.id},'${NEXT[o.status][0]}')">${NEXT[o.status][1]}</button></div>`}
+async function load(){try{const os=await api('/api/staff/orders');
+ if(!first&&os.some(o=>o.status=='baru'&&!known.has(o.id)))beep();os.forEach(o=>known.add(o.id));first=false;
+ const col=(s,t)=>`<div class="col c-${s}"><h2>${t} (${os.filter(o=>o.status==s).length})</h2>${os.filter(o=>o.status==s).map(card).join('')||'<div class="mu">—</div>'}</div>`;
+ document.getElementById('app').innerHTML=`<div class="wrap"><div class="top"><h1>☕ Pesanan Masuk</h1><button class="s" onclick="logout()">Keluar</button></div><div class="cols">${col('baru','🆕 Baru')}${col('dibuat','🔧 Sedang Dibuat')}${col('siap','✅ Siap Diambil')}</div></div>`}catch(e){}}
+function start(){first=true;load();clearInterval(timer);timer=setInterval(load,5000)}
+TK?start():loginUI();
+</script></body></html>
