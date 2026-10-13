@@ -33,3 +33,10 @@ pembatalan otomatis pesanan gateway yang tidak dibayar. Kode belum diuji dengan 
 
 ## Kredit
 Aplikasi pelanggan menampilkan "Dibuat oleh Shadow Security Indonesia · @shadowsecindonesia" (tautan Instagram) di footer semua halaman dan layar login. Ubah di konstanta `CREDIT` pada `server/public/index.html`.
+<img width="780" height="1688" alt="D-Coffee-06-gerai-terdekat" src="https://github.com/user-attachments/assets/a5d011d3-c134-4a1a-b5fd-c52d79a6efeb" />
+<img width="780" height="1688" alt="D-Coffee-05-dompet-loyalitas" src="https://github.com/user-attachments/assets/3e26352d-df70-4068-baf7-a7cf83b37938" />
+<img width="2560" height="1582" alt="D-Coffee-04-tampilan-desktop" src="https://github.com/user-attachments/assets/5d37a6f6-8c75-4a5e-a09c-996f2ce2398e" />
+<img width="780" height="1688" alt="D-Coffee-03-lacak-pesanan" src="https://github.com/user-attachments/assets/651f0e92-467d-4de3-8021-466635cd8f97" />
+<img width="780" height="1688" alt="D-Coffee-02-kustomisasi-menu" src="https://github.com/user-attachments/assets/43355187-4fd7-4f24-9be2-206bf71f6609" />
+<img width="780" height="1688" alt="D-Coffee-01-beranda" src="https://github.com/user-attachments/assets/a2b1ef11-671a-49e7-80fa-019d9ce14290" />
+<img width="780" height="1688" alt="D-Coffee-07-masuk-daftar" src="https://github.com/user-attachments/assets/a2e4d9c3-8e14-410f-8b69-e0105b5e906d" />
